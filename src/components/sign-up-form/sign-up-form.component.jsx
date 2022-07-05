@@ -36,7 +36,10 @@ const SignUpForm = () => {
         try {
             const response = await createAuthUserWithEmailAndPassword(email, password);
             if (response) {
-                const userDocRef = createUserDocumentFromAuth(response.user, { displayName });
+                // store user in firestore db
+                await createUserDocumentFromAuth(response.user, { displayName });
+
+                // reset form fields
                 setFormFields(defaultFormFields);
             }
         } catch (err) {

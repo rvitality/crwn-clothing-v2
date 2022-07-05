@@ -20,8 +20,9 @@ const SignInForm = () => {
     const [error, setError] = useState("");
 
     const signInWithGoogle = async () => {
-        const response = await signInWithGooglePopup();
-        createUserDocumentFromAuth(response.user);
+        await signInWithGooglePopup();
+        // const response = await signInWithGooglePopup();
+        // await createUserDocumentFromAuth(response.user);
     };
 
     const handleChange = event => {
@@ -35,7 +36,6 @@ const SignInForm = () => {
 
         try {
             const response = await signInAuthWithEmailAndPassword(email, password);
-            console.log(response);
         } catch (err) {
             setError(err.message);
         }
