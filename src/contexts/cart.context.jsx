@@ -11,7 +11,7 @@ export const CartProvider = ({ children }) => {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [cartItems, setCartItems] = useState([]);
 
-    const addItemToCartHandler = item => {
+    const addItemToCart = item => {
         setCartItems(prevCartItems => {
             // const existingItemIndex = prevCartItems.findIndex(cartItem => cartItem.id === item.id);
             // const existingItem = prevCartItems[existingItemIndex];
@@ -37,7 +37,32 @@ export const CartProvider = ({ children }) => {
         });
     };
 
-    const value = { isCartOpen, setIsCartOpen, cartItems, addItemToCart: addItemToCartHandler };
+    const decreaseItemQuantity = id => {
+        setCartItems(prevCartItems => {
+            return prevCartItems
+                .map(item => {
+                    // decreae quantity
+                    if (item.id === id) {
+                        return { ...item, quantity: item.quantity - 1 };
+                    }
+
+                    return item;
+                })
+                .filter(item => item.quantity !== 0);
+        });
+    };
+
+    const removeItemFromCart = id =>
+        setCartItems(prevCartItems => prevCartItems.filter(cartItem => cartItem.id !== id));
+
+    const value = {
+        isCartOpen,
+        setIsCartOpen,
+        cartItems,
+        addItemToCart,
+        decreaseItemQuantity,
+        removeItemFromCart,
+    };
 
     return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };
