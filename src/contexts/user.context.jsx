@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useReducer } from "react";
 import {
     createUserDocumentFromAuth,
     onAuthStateChangedListener,
@@ -9,10 +9,26 @@ const UserContext = createContext({
     setCurrentUser: () => {},
 });
 
-export const UserProvider = ({ children }) => {
-    const [currentUser, setCurrentUser] = useState(null);
+const userReducer = (state, action) => {
+    const { type, payload } = action;
 
-    const value = { currentUser, setCurrentUser };
+    if (type === "SET_USER") {
+        return { ...state, currentUser: payload.user };
+    }
+
+    return {
+        currentUser: null,
+    };
+};
+
+export const UserProvider = ({ children }) => {
+    const [state, dispatch] = useReducer(userReducer, { currentUser: null });
+
+    const setCurrentUser = user => {
+        dispatch({ type: "SET_USER", payload: { user } });
+    };
+
+    const value = { currentUser: state.currentUser, setCurrentUser };
 
     useEffect(() => {
         const unsubscribe = onAuthStateChangedListener(user => {

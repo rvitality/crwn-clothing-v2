@@ -40,7 +40,7 @@ const SignUpForm = () => {
                 await createUserDocumentFromAuth(response.user, { displayName });
 
                 // reset form fields
-                setFormFields(defaultFormFields);
+                // setFormFields(defaultFormFields);
             }
         } catch (err) {
             setError(err.message);

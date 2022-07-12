@@ -1,64 +1,91 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useReducer, useState } from "react";
 
 const CartContext = createContext({
     isCartOpen: false,
-    setIsCartOpen: () => {},
     cartItems: [],
+    setIsCartOpen: () => {},
     addItemToCart: item => {},
 });
 
+const cartReducer = (state, action) => {
+    const { type, payload } = action;
+
+    if (type === "SET_IS_OPEN_CART") {
+        return { ...state, isCartOpen: !state.isCartOpen };
+    }
+
+    if (type === "ADD_ITEM_TO_CART") {
+        const existingItem = state.cartItems.find(cartItem => cartItem.id === payload.item.id);
+
+        const cartItemsCopy = [...state.cartItems];
+
+        // push item to arr
+        if (!existingItem) {
+            // return [{ ...item, quantity: 1 }, ...prevCartItems];
+            return { ...state, cartItems: [...cartItemsCopy, { ...payload.item, quantity: 1 }] };
+        }
+        // increase item quantity
+        else {
+            const cartItemsMap = state.cartItems.map(cartItem => {
+                if (cartItem.id === payload.item.id) {
+                    return { ...cartItem, quantity: cartItem.quantity + 1 };
+                }
+
+                return cartItem;
+            });
+
+            return { ...state, cartItems: cartItemsMap };
+        }
+    }
+
+    if (type === "DECREASE_ITEM_QUANTITY") {
+        const cartItemsMapped = state.cartItems
+            .map(cartItem => {
+                if (cartItem.id === payload.itemID) {
+                    return { ...cartItem, quantity: cartItem.quantity - 1 };
+                }
+
+                return cartItem;
+            })
+            .filter(cartItem => cartItem.quantity > 0);
+
+        return { ...state, cartItems: cartItemsMapped };
+    }
+
+    if (type === "DELETE_ITEM") {
+        const cartItemsFiltered = state.cartItems.filter(
+            cartItem => cartItem.id !== payload.itemID
+        );
+
+        return { ...state, cartItems: cartItemsFiltered };
+    }
+
+    return { isCartOpen: false, cartItems: [] };
+};
+
 export const CartProvider = ({ children }) => {
-    const [isCartOpen, setIsCartOpen] = useState(false);
-    const [cartItems, setCartItems] = useState([]);
+    const [state, dispatch] = useReducer(cartReducer, { isCartOpen: false, cartItems: [] });
 
     const addItemToCart = item => {
-        setCartItems(prevCartItems => {
-            // const existingItemIndex = prevCartItems.findIndex(cartItem => cartItem.id === item.id);
-            // const existingItem = prevCartItems[existingItemIndex];
-            const existingItem = prevCartItems.find(cartItem => cartItem.id === item.id);
-
-            // push item to arr
-            if (!existingItem) {
-                return [{ ...item, quantity: 1 }, ...prevCartItems];
-            }
-            // increase item quantity
-            else {
-                // prevCartItems[existingItemIndex].quantity += 1;
-                // return prevCartItems;
-
-                return prevCartItems.map(cartItem => {
-                    if (cartItem.id === existingItem.id) {
-                        return { ...cartItem, quantity: cartItem.quantity + 1 };
-                    }
-
-                    return cartItem;
-                });
-            }
-        });
+        dispatch({ type: "ADD_ITEM_TO_CART", payload: { item } });
     };
 
-    const decreaseItemQuantity = id => {
-        setCartItems(prevCartItems => {
-            return prevCartItems
-                .map(item => {
-                    // decreae quantity
-                    if (item.id === id) {
-                        return { ...item, quantity: item.quantity - 1 };
-                    }
-
-                    return item;
-                })
-                .filter(item => item.quantity !== 0);
-        });
+    const setIsCartOpen = () => {
+        dispatch({ type: "SET_IS_OPEN_CART" });
     };
 
-    const removeItemFromCart = id =>
-        setCartItems(prevCartItems => prevCartItems.filter(cartItem => cartItem.id !== id));
+    const decreaseItemQuantity = itemID => {
+        dispatch({ type: "DECREASE_ITEM_QUANTITY", payload: { itemID } });
+    };
+
+    const removeItemFromCart = itemID => {
+        dispatch({ type: "DELETE_ITEM", payload: { itemID } });
+    };
 
     const value = {
-        isCartOpen,
+        isCartOpen: state.isCartOpen,
+        cartItems: state.cartItems,
         setIsCartOpen,
-        cartItems,
         addItemToCart,
         decreaseItemQuantity,
         removeItemFromCart,

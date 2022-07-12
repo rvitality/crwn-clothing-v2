@@ -14,6 +14,7 @@ import { NavigationContainer, Logo, NavLinks, NavLink } from "./navigation.style
 
 const Navigation = () => {
     const { currentUser } = useUserContext();
+
     const { isCartOpen } = useCartContext();
 
     const signOutUserHandler = async () => {
