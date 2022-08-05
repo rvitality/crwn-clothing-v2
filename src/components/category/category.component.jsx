@@ -1,28 +1,32 @@
 import React, { useState, useEffect } from "react";
-
 import { useParams } from "react-router-dom";
-import { useCategoriesContext } from "../../contexts/categories.context";
+import { useSelector } from "react-redux";
+
+import {
+    selectCategoriesMap,
+    selectCategoriesIsLoading,
+} from "../../store/categories/category.selector";
+
 import ProductCard from "../product-card/product-card.component";
+import Spinner from "../spinner/spinner.component";
 
 import { ShopCategoriesContainer, Grid, Title } from "./category.styles.jsx";
 
 const Category = () => {
-    const { categories } = useCategoriesContext();
     const { category } = useParams();
+    // console.log("render / re-rendering category component");
+
+    const categories = useSelector(selectCategoriesMap);
+    const isLoading = useSelector(selectCategoriesIsLoading);
 
     const [products, setProducts] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
-        setIsLoading(false);
-
         const fetchProducts = categories[category];
 
         if (!fetchProducts) {
-            setIsLoading(true);
         } else {
             setProducts(fetchProducts);
-            setIsLoading(false);
         }
     }, [categories, category]);
 
@@ -30,7 +34,7 @@ const Category = () => {
 
     return (
         <ShopCategoriesContainer>
-            {isLoading && <Title>Loading ...</Title>}
+            {isLoading && <Spinner />}
             {!isLoading && (
                 <>
                     <Title>{category}</Title>

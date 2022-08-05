@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, useState } from "react";
+import { createContext, useContext, useReducer } from "react";
 
 const CartContext = createContext({
     isCartOpen: false,
@@ -66,12 +66,12 @@ const cartReducer = (state, action) => {
 export const CartProvider = ({ children }) => {
     const [state, dispatch] = useReducer(cartReducer, { isCartOpen: false, cartItems: [] });
 
-    const addItemToCart = item => {
-        dispatch({ type: "ADD_ITEM_TO_CART", payload: { item } });
-    };
-
     const setIsCartOpen = () => {
         dispatch({ type: "SET_IS_OPEN_CART" });
+    };
+
+    const addItemToCart = item => {
+        dispatch({ type: "ADD_ITEM_TO_CART", payload: { item } });
     };
 
     const decreaseItemQuantity = itemID => {

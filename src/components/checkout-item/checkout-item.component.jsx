@@ -1,5 +1,11 @@
 import React from "react";
-import { useCartContext } from "../../contexts/cart.context";
+import { useDispatch } from "react-redux";
+
+import {
+    addItemToCart,
+    decreaseItemQuantity,
+    removeItemFromCart,
+} from "../../store/cart/cart.action";
 
 import {
     CheckoutItemContainer,
@@ -14,7 +20,7 @@ import {
 const CheckoutItem = item => {
     const { id, name, price, quantity, imageUrl } = item;
 
-    const { addItemToCart, decreaseItemQuantity, removeItemFromCart } = useCartContext();
+    const dispatch = useDispatch();
 
     return (
         <CheckoutItemContainer>
@@ -23,12 +29,12 @@ const CheckoutItem = item => {
             </ImageContainer>
             <BaseSpan>{name}</BaseSpan>
             <Quantity>
-                <Arrow onClick={decreaseItemQuantity.bind(null, id)}>❮</Arrow>
+                <Arrow onClick={() => dispatch(decreaseItemQuantity(id))}>❮</Arrow>
                 <Value>{quantity}</Value>
-                <Arrow onClick={addItemToCart.bind(null, item)}>❯</Arrow>
+                <Arrow onClick={() => dispatch(addItemToCart(item))}>❯</Arrow>
             </Quantity>
             <BaseSpan>${price}</BaseSpan>
-            <RemoveButton onClick={removeItemFromCart.bind(null, id)}>✕</RemoveButton>
+            <RemoveButton onClick={() => dispatch(removeItemFromCart(id))}>✕</RemoveButton>
         </CheckoutItemContainer>
     );
 };
